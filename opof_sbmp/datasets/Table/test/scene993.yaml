@@ -1,0 +1,30 @@
+table:
+  position:
+  - 0
+  - 0
+  - 0.0
+  orientation:
+  - 0
+  - 0
+  - 0
+  - 1
+bars_left:
+  position:
+  - 0
+  - 0.05396088721405229
+  - 0.0
+  orientation:
+  - 0
+  - 0
+  - 0
+  - 1
+bars_right:
+  position:
+  - 0
+  - -0.006035943394299803
+  - 0.0
+  orientation:
+  - 0
+  - 0
+  - 0
+  - 1

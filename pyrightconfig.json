@@ -1,0 +1,5 @@
+{
+  "include": ["opof_sbmp"],
+  "exclude": ["opof_sbmp/datasets", "opof_sbmp/descriptions", "opof_sbmp/meshes"],
+  "ignore": ["opof_sbmp/datasets", "opof_sbmp/descriptions", "opof_sbmp/meshes"]
+}

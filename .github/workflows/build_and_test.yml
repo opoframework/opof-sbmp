@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - 'master'
+
+  pull_request:
+    branches:
+      - 'master'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build opof-sbmp wheel.
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Python dependencies
+        run: pip install build
+
+      - name: Build wheel
+        uses: RalfG/python-wheels-manylinux-build@v0.7.1
+        with:
+          python-versions: 'cp39-cp39 cp310-cp310 cp311-cp311'
+          build-requirements: 'cython numpy'
+    
+      - uses: actions/upload-artifact@v3
+        with:
+          name: opof-sbmp
+          path: dist/*.whl
+  
+  test:
+    needs: build
+    name: Test opof-sbmp on ${{ matrix.os }} with Python ${{ matrix.python-version.a }}.
+    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+        python-version: [{ a: "3.9", b: "39"}, { a: "3.10", b: "310" }, { a: "3.11", b: "311" }]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version.a }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version.a }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: opof-sbmp
+          path: dist
+
+      - name: Install OPOF
+        run: pip install opof
+
+      - name: Install package
+        run: pip install dist/*-cp${{ matrix.python-version.b }}-manylinux*.whl
+
+      - name: Install test dependencies
+        run: pip install pytest pytest-timeout
+
+      - name: Run tests
+        run: pytest -v

@@ -1,0 +1,13 @@
+*.swp
+*.pyc
+*.py~
+.DS_Store
+.cache
+__pycache__/
+*.egg-info/
+*.so
+
+dist/
+build/
+meshes/*.blend1
+.coverage
