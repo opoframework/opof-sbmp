@@ -55,7 +55,7 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
         basis_path = pkg_resources.resource_filename(
             "opof_sbmp", f"datasets/{env_name}/basis*.yaml"
         )
-        for p in sorted(glob(basis_path))[:50]:
+        for p in sorted(glob(basis_path))[:100]:
             self.basis.append(self.robot.load_trajectory(p))
 
     def __call__(
@@ -116,33 +116,37 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
                 projection_args.reshape(2, -1).tolist(),
             )
 
+        space_params = dict(
+            (
+                hp[0],
+                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
+            )
+            for (p, hp) in zip(
+                space_args,
+                self.space_hyperparameters,
+            )
+        )
+
+        planner_params = dict(
+            (
+                hp[0],
+                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
+            )
+            for (p, hp) in zip(
+                planner_args,
+                self.planner_hyperparameters,
+            )
+        )
+
         # Solve.
         result = solve(
             [self.robot.topology[j] for j in self.robot.group],
-            dict(
-                (
-                    hp[0],
-                    hp[1][0] + (hp[1][1] - hp[1][0]) * p,
-                )
-                for (p, hp) in zip(
-                    space_args,
-                    self.space_hyperparameters,
-                )
-            ),
+            space_params,
             sampler_info,
             validity_checker,
             projection_info,
             self.planner,
-            dict(
-                (
-                    hp[0],
-                    hp[1][0] + (hp[1][1] - hp[1][0]) * p,
-                )
-                for (p, hp) in zip(
-                    planner_args,
-                    self.planner_hyperparameters,
-                )
-            ),
+            planner_params,
             problem[1].start,
             problem[1].goal,
             self.timeout,

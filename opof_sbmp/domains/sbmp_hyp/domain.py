@@ -100,7 +100,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
         )
         # Sampler parameters.
         if self.requires_sampler:
-            spaces.append(Simplex(1, 50))
+            spaces.append(Simplex(1, 100))
         # Projection parameters.
         if self.requires_projection:
             spaces.append(Interval(2 * len(self.robot_class().group)))
