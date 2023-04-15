@@ -1,11 +1,9 @@
-from opof_sbmp import SbmpOmplDomain
-from opof_sbmp.environments import BookshelfEnvironment
-from opof_sbmp.robots import FetchRobot
+import os
+from multiprocessing import Process, Queue
 
 import numpy as np
-import os
-from multiprocessing import Queue, Process
 from tqdm import tqdm
+from opof_sbmp.domains import SBMPHyp
 
 NUM_WORKERS = 20
 NUM_PROBLEMS = 50
@@ -15,14 +13,14 @@ def job(worker, queue):
     # Seed RNGs.
     np.random.seed(int.from_bytes(os.urandom(4), byteorder="little"))
 
-    results = []
-    domain = SbmpOmplDomain(BookshelfEnvironment, FetchRobot, "RRTConnect")
-    training_problems = domain.training_problems()
-    planner = domain.planner()
+    domain = SBMPHyp("Bookshelf", "RRTConnect")
+    problems = domain.create_problem_set()
+    planner = domain.create_planner()
     for i in range(NUM_PROBLEMS):
         index = worker * NUM_PROBLEMS + i
-        problem = training_problems()
+        problem = problems()
         queue.put(planner(problem, None))
+
 
 if __name__ == "__main__":
     queue = Queue()

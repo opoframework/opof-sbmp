@@ -20,7 +20,7 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
     world: World
 
     planner: str
-    timeout: float
+    timeout: int
     space_hyperparameters: List[Tuple[str, Tuple[float, float]]]
     planner_hyperparameters: List[Tuple[str, Tuple[float, float]]]
     requires_sampler: bool
@@ -33,7 +33,7 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
         env: Environment,
         robot: Robot,
         planner: str,
-        timeout: float,
+        timeout: int,
         space_hyperparameters: List[Tuple[str, Tuple[float, float]]],
         planner_hyperparameters: List[Tuple[str, Tuple[float, float]]],
         requires_sampler: bool,
@@ -53,7 +53,7 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
         self.basis = []
         env_name = type(self.env).__name__.split("Environment")[0]
         basis_path = pkg_resources.resource_filename(
-            "opof_sbmp", f"datasets/{env_name}/train/basis*.yaml"
+            "opof_sbmp", f"datasets/{env_name}/basis*.yaml"
         )
         for p in sorted(glob(basis_path))[:50]:
             self.basis.append(self.robot.load_trajectory(p))
@@ -146,12 +146,14 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
             problem[1].start,
             problem[1].goal,
             self.timeout,
+            False,
         )
 
         # Compute objective. We want to minimize time taken, but OPOF
         # maximizes objective. So we use the negative.
-        result["objective"] = -(
-            result["time"] if result["success"] > 0.5 else self.timeout
-        )
+        if result["success"] < 0.5:
+            result["objective"] = -1.0
+        else:
+            result["objective"] = -result["iterations"] / self.timeout
 
         return result

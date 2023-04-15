@@ -21,7 +21,7 @@ from .planner_configs import (
     REQUIRES_PROJECTION,
     REQUIRES_SAMPLER,
     SPACE_HYPERPARAMETERS,
-    TIMEOUT,
+    TIMEOUTS,
 )
 
 TEnvironment = TypeVar("TEnvironment", bound=Environment)
@@ -35,7 +35,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
     planner: str
     projection: str
 
-    timeout: float
+    timeout: int
     planner_hyperparameters: List[Tuple[str, Tuple[float, float]]]
     space_hyperparameters: List[Tuple[str, Tuple[float, float]]]
     requires_sampler: bool
@@ -62,7 +62,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
         self.planner = planner
 
-        self.timeout = TIMEOUT[env_name]
+        self.timeout = TIMEOUTS[PLANNERS.index(planner)]
         self.space_hyperparameters = SPACE_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.planner_hyperparameters = PLANNER_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.requires_sampler = REQUIRES_SAMPLER[PLANNERS.index(planner)]
@@ -82,11 +82,11 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
     def create_problem_set(self):
         train_problems = []
-        for i in range(1000):
+        for i in range(400):
             scene = self.env_class.scene_class().load(
-                f"{self.dataset_path}/train/scene{i:03d}.yaml"
+                f"{self.dataset_path}/scene{i:03d}.yaml"
             )
-            task = Task.load(f"{self.dataset_path}/train/task{i:03d}.yaml")
+            task = Task.load(f"{self.dataset_path}/task{i:03d}.yaml")
             train_problems.append((scene, task))
         return ProblemList(train_problems)
 
@@ -111,10 +111,10 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
     def create_evaluator(self):
         eval_problems = []
-        for i in range(100):
+        for i in range(400, 500):
             scene = self.env_class.scene_class().load(
-                f"{self.dataset_path}/test/scene{i:03d}.yaml"
+                f"{self.dataset_path}/scene{i:03d}.yaml"
             )
-            task = Task.load(f"{self.dataset_path}/test/task{i:03d}.yaml")
+            task = Task.load(f"{self.dataset_path}/task{i:03d}.yaml")
             eval_problems.append((scene, task))
         return ListEvaluator(self, eval_problems)

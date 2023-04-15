@@ -1,21 +1,18 @@
 from typing import List, Tuple
 
-TIMEOUT = {"Cage": 1.0, "Bookshelf": 2.0, "Table": 3.0}
-
 PLANNERS = [
     "RRTConnect",
-    "BiEST",
     "LBKPIECE1",
 ]
 
+TIMEOUTS: List[int] = [3000, 10000]
+
 SPACE_HYPERPARAMETERS: List[List[Tuple[str, Tuple[float, float]]]] = [
-    [],
     [],
     [],
 ]
 
 PLANNER_HYPERPARAMETERS: List[List[Tuple[str, Tuple[float, float]]]] = [
-    [("range", (0.01, 5.00))],
     [("range", (0.01, 5.00))],
     [
         ("range", (0.01, 5.00)),
@@ -27,11 +24,9 @@ PLANNER_HYPERPARAMETERS: List[List[Tuple[str, Tuple[float, float]]]] = [
 REQUIRES_SAMPLER = [
     True,
     False,
-    False,
 ]
 
 REQUIRES_PROJECTION = [
-    False,
     False,
     True,
 ]

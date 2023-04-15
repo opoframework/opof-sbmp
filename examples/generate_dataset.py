@@ -15,7 +15,7 @@ from opof_sbmp.typing import State
 from tqdm import tqdm
 
 
-def job(config, destination, job_queue, result_queue):
+def job(config, job_queue, result_queue):
     # Seed RNGs.
     np.random.seed(int.from_bytes(os.urandom(4), byteorder="little"))
 
@@ -30,7 +30,7 @@ def job(config, destination, job_queue, result_queue):
         raise Exception(f"Unsupported config: {config}")
 
     # Create output folder.
-    output = f"../datasets/{config}/{destination}"
+    output = f"../opof_sbmp/datasets/{config}"
     os.makedirs(output, exist_ok=True)
 
     while True:
@@ -68,8 +68,10 @@ def job(config, destination, job_queue, result_queue):
             {},
             problem.start,
             problem.goal,
-            5.0,
+            10000,
+            True
         )
+        print(result)
 
         if result["success"] > 0.5:
             scene.save(f"{output}/scene{index:03d}.yaml")
@@ -93,13 +95,6 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--destination",
-        type=str,
-        choices=["train", "test"],
-        help="Destination folder in dataset",
-        required=True,
-    )
-    parser.add_argument(
         "--workers",
         type=int,
         default=1,
@@ -120,7 +115,7 @@ if __name__ == "__main__":
     for i in range(args.workers):
         Process(
             target=job,
-            args=(args.config, args.destination, job_queue, result_queue),
+            args=(args.config, job_queue, result_queue),
         ).start()
     for index in range(args.problems):
         job_queue.put(index)

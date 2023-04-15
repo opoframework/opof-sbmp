@@ -20,9 +20,11 @@ static PyObject *solve(PyObject *self, PyObject *args) {
   PyObject *start;
   PyObject *goal;
   PyObject *timeout;
-  PyArg_UnpackTuple(args, "ref", 10, 10, &topology, &space_params, &sampler,
+  PyObject *output_trajectory;
+  PyArg_UnpackTuple(args, "ref", 11, 11, &topology, &space_params, &sampler,
                     &validity_checker, &projection, &planner_name,
-                    &planner_params, &start, &goal, &timeout);
+                    &planner_params, &start, &goal, &timeout,
+                    &output_trajectory);
 
   std::string planner_name_s = core::as_string(planner_name);
 
@@ -121,12 +123,10 @@ static PyObject *solve(PyObject *self, PyObject *args) {
   // Track planner calls and time.
   size_t iterations = 0;
   auto start_time = std::chrono::system_clock::now();
-  auto end_time =
-      start_time + std::chrono::milliseconds(
-                       int(std::round(1000 * PyFloat_AsDouble(timeout))));
-  ompl::base::PlannerTerminationCondition ptc([&iterations, &end_time]() {
+  size_t max_iterations = PyLong_AsLong(timeout);
+  ompl::base::PlannerTerminationCondition ptc([&iterations, &max_iterations]() {
     iterations++;
-    return ompl::time::now() > end_time;
+    return iterations >= max_iterations;
   });
 
   // Solve.
@@ -143,15 +143,16 @@ static PyObject *solve(PyObject *self, PyObject *args) {
 
   // Construct result path.
   PyObject *trajectory = PyList_New(0);
-  /*
-  if (pd->hasSolution()) {
-    auto path = pd->getSolutionPath()->as<ompl::geometric::PathGeometric>();
-    //path->interpolate(100;
-    for (size_t i = 0; i < path->getStateCount(); i++) {
-      PyList_Append(trajectory, state_to_list(ss.get(), path->getState(i)));
+  if (PyObject_IsTrue(output_trajectory)) {
+    if (pd->hasSolution()) {
+      auto path = pd->getSolutionPath()->as<ompl::geometric::PathGeometric>();
+      // path->interpolate(100;
+      for (size_t i = 0; i < path->getStateCount(); i++) {
+        PyList_Append(trajectory,
+                      core::state_to_list(ss.get(), path->getState(i)));
+      }
     }
   }
-  */
 
   // Construct result.
   PyObject *result = PyDict_New();

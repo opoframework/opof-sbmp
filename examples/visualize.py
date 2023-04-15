@@ -1,5 +1,5 @@
 from opof_sbmp import World
-from opof_sbmp.domains.sbmp_hyp_opt import SBMPHypOpt
+from opof_sbmp.domains import SBMPHypOpt
 
 if __name__ == "__main__":
     domain = SBMPHypOpt("Bookshelf", "LBKPIECE1")
