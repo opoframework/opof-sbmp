@@ -1,37 +1,20 @@
-import os
-from multiprocessing import Process, Queue
+import sys
 
-import numpy as np
-from tqdm import tqdm
+import torch
 from opof_sbmp.domains import SBMPHyp
 
-NUM_WORKERS = 20
-NUM_PROBLEMS = 50
+from opof.models import FCResNetGenerator
 
-
-def job(worker, queue):
-    # Seed RNGs.
-    np.random.seed(int.from_bytes(os.urandom(4), byteorder="little"))
-
+if __name__ == "__main__":
     domain = SBMPHyp("Bookshelf", "RRTConnect")
     problems = domain.create_problem_set()
     planner = domain.create_planner()
-    for i in range(NUM_PROBLEMS):
-        index = worker * NUM_PROBLEMS + i
+    generator = FCResNetGenerator(domain)
+    generator.load_state_dict(torch.load(sys.argv[1]))
+    generator.eval()
+
+    while True:
         problem = problems()
-        queue.put(planner(problem, None))
+        parameters = generator([problem])
+        print(parameters)
 
-
-if __name__ == "__main__":
-    queue = Queue()
-    for i in range(NUM_WORKERS):
-        Process(target=job, args=(i, queue)).start()
-
-    t = 0
-    c = 0
-    for _ in tqdm(range(NUM_WORKERS * NUM_PROBLEMS), desc="Solving..."):
-        r = queue.get()
-        t += r[1]
-        c += 1
-
-    print(t / c)
