@@ -143,10 +143,10 @@ static PyObject *solve(PyObject *self, PyObject *args) {
 
   // Construct result path.
   PyObject *trajectory = PyList_New(0);
-  if (PyObject_IsTrue(output_trajectory)) {
+  if (success && PyObject_IsTrue(output_trajectory)) {
     if (pd->hasSolution()) {
       auto path = pd->getSolutionPath()->as<ompl::geometric::PathGeometric>();
-      // path->interpolate(100;
+      path->interpolate();
       for (size_t i = 0; i < path->getStateCount(); i++) {
         PyList_Append(trajectory,
                       core::state_to_list(ss.get(), path->getState(i)));

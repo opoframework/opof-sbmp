@@ -34,13 +34,6 @@ def job(config, job_queue, result_queue):
     os.makedirs(output, exist_ok=True)
 
     while True:
-        job = job_queue.get()
-        # Sentinal value for signalling termination.
-        if job is None:
-            break
-
-        index = job
-
         # Generate problem
         (scene, problem) = world.rand_problem()
 
@@ -63,25 +56,29 @@ def job(config, job_queue, result_queue):
             {},
             None,
             validity_checker,
-            projection_info,
-            "LBKPIECE1",
-            {},
+            None,  # projection_info,
+            "RRTConnect",
+            {"range": 0.1},
             problem.start,
             problem.goal,
             10000,
-            True
+            True,
         )
         print(result)
 
         if result["success"] > 0.5:
+            job = job_queue.get()
+            # Sentinal value for signalling termination.
+            if job is None:
+                break
+            index = job
+
             scene.save(f"{output}/scene{index:03d}.yaml")
             problem.save(f"{output}/task{index:03d}.yaml")
             world.robot.write_trajectory(
                 result["trajectory"], f"{output}/basis{index:03d}.yaml"
             )
             result_queue.put(index)
-        else:
-            job_queue.put(index)  # Retry.
 
 
 if __name__ == "__main__":
@@ -119,6 +116,8 @@ if __name__ == "__main__":
         ).start()
     for index in range(args.problems):
         job_queue.put(index)
+    for i in range(args.workers):
+        job_queue.put(None)
 
     # Wait for complete.
     try:
