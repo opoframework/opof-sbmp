@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
@@ -28,6 +29,11 @@ class Robot(object):
     robot: Any
 
     def __init__(self):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def rrt_range(self):
         raise NotImplementedError()
 
     def setup(self, urdf_path: str, srdf_path: str, group: Group, ee_links: List[str]):

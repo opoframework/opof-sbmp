@@ -6,6 +6,10 @@ from ..robot import Robot
 
 
 class FetchRobot(Robot):
+    @property
+    def rrt_range(self):
+        return 0.7611
+
     def __init__(self):
         self.setup(
             pkg_resources.resource_filename(

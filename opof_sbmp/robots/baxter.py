@@ -6,6 +6,10 @@ from ..robot import Robot
 
 
 class BaxterRobot(Robot):
+    @property
+    def rrt_range(self):
+        return 0.5
+
     def __init__(self):
         self.setup(
             pkg_resources.resource_filename(

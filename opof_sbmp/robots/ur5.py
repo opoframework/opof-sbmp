@@ -6,6 +6,10 @@ from ..robot import Robot
 
 
 class UR5Robot(Robot):
+    @property
+    def rrt_range(self):
+        return 0.0
+
     def __init__(self):
         self.setup(
             pkg_resources.resource_filename(

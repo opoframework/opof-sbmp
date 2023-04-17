@@ -137,7 +137,7 @@ class BookshelfEnvironment(Environment[BookshelfScene]):
             postt(t.quaternion_from_euler(0, 0, bookshelf_offset_angle)),
         )
         cans = []
-        for z in [1.38, 1.08, 0.78]:
+        for z in [1.205, 0.905, 0.605]:
             for x in [0.7, 0.5, 0.3]:
                 y = np.random.uniform(-0.4, 0.4)
                 pos = np.array([x, y, z]) + bookshelf_offset_pos

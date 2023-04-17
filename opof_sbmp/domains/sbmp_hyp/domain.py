@@ -62,7 +62,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
         self.planner = planner
 
-        self.timeout = TIMEOUTS[PLANNERS.index(planner)]
+        self.timeout = TIMEOUTS[env_name]
         self.space_hyperparameters = SPACE_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.planner_hyperparameters = PLANNER_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.requires_sampler = REQUIRES_SAMPLER[PLANNERS.index(planner)]
@@ -82,7 +82,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
     def create_problem_set(self):
         train_problems = []
-        for i in range(400):
+        for i in range(900):
             scene = self.env_class.scene_class().load(
                 f"{self.dataset_path}/scene{i:03d}.yaml"
             )
@@ -93,14 +93,15 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
     def composite_parameter_space(self):
         spaces = []
         # State space parameters.
-        spaces.append(
-            Interval(
-                len(self.space_hyperparameters) + len(self.planner_hyperparameters)
+        if len(self.space_hyperparameters) + len(self.planner_hyperparameters) > 0:
+            spaces.append(
+                Interval(
+                    len(self.space_hyperparameters) + len(self.planner_hyperparameters)
+                )
             )
-        )
         # Sampler parameters.
         if self.requires_sampler:
-            spaces.append(Simplex(1, 100))
+            spaces.append(Simplex(1, 50))
         # Projection parameters.
         if self.requires_projection:
             spaces.append(Interval(2 * len(self.robot_class().group)))
@@ -111,7 +112,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
     def create_evaluator(self):
         eval_problems = []
-        for i in range(400, 500):
+        for i in range(900, 1000):
             scene = self.env_class.scene_class().load(
                 f"{self.dataset_path}/scene{i:03d}.yaml"
             )

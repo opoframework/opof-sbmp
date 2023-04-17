@@ -55,7 +55,7 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
         basis_path = pkg_resources.resource_filename(
             "opof_sbmp", f"datasets/{env_name}/basis*.yaml"
         )
-        for p in sorted(glob(basis_path))[:100]:
+        for p in sorted(glob(basis_path))[:50]:
             self.basis.append(self.robot.load_trajectory(p))
 
     def __call__(
@@ -69,13 +69,38 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
 
         counter = 0
 
-        # Extract space args.
-        space_args = parameters[0][: len(self.space_hyperparameters)]
-        space_args = [p[0] for p in space_args]
-        # Extract planner args.
-        planner_args = parameters[0][len(self.space_hyperparameters) :]
-        planner_args = [p[0] for p in planner_args]
-        counter += 1
+        space_args = []
+        planner_args = []
+        if len(self.space_hyperparameters) + len(self.planner_hyperparameters) > 0:
+            # Extract space args.
+            space_args = parameters[counter][: len(self.space_hyperparameters)]
+            space_args = [p[0] for p in space_args]
+            # Extract planner args.
+            planner_args = parameters[counter][len(self.space_hyperparameters) :]
+            planner_args = [p[0] for p in planner_args]
+            counter += 1
+        space_params = dict(
+            (
+                hp[0],
+                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
+            )
+            for (p, hp) in zip(
+                space_args,
+                self.space_hyperparameters,
+            )
+        )
+        planner_params = dict(
+            (
+                hp[0],
+                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
+            )
+            for (p, hp) in zip(
+                planner_args,
+                self.planner_hyperparameters,
+            )
+        )
+        if self.planner == "RRTConnect":
+            planner_params["range"] = self.robot.rrt_range
 
         # Extract sampler args.
         sampler_args = None
@@ -115,28 +140,6 @@ class SBMPHypPlanner(opof.Planner[Tuple[Scene, Task]]):
                 "Linear",
                 projection_args.reshape(2, -1).tolist(),
             )
-
-        space_params = dict(
-            (
-                hp[0],
-                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
-            )
-            for (p, hp) in zip(
-                space_args,
-                self.space_hyperparameters,
-            )
-        )
-
-        planner_params = dict(
-            (
-                hp[0],
-                hp[1][0] + (hp[1][1] - hp[1][0]) * p,
-            )
-            for (p, hp) in zip(
-                planner_args,
-                self.planner_hyperparameters,
-            )
-        )
 
         # Solve.
         result = solve(
