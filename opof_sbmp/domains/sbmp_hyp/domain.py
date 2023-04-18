@@ -62,7 +62,7 @@ class SBMPHyp(opof.Domain[Tuple[Scene, Task]], Generic[TEnvironment, TRobot]):
 
         self.planner = planner
 
-        self.timeout = TIMEOUTS[env_name]
+        self.timeout = TIMEOUTS[PLANNERS.index(planner)][env_name]
         self.space_hyperparameters = SPACE_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.planner_hyperparameters = PLANNER_HYPERPARAMETERS[PLANNERS.index(planner)]
         self.requires_sampler = REQUIRES_SAMPLER[PLANNERS.index(planner)]
