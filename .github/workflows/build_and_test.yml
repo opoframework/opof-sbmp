@@ -51,7 +51,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
-        python-version: [{ a: "3.9", b: "39"}, { a: "3.10", b: "310" }, { a: "3.11", b: "311" }]
+        python-version: [{ a: "3.9", b: "39"}, { a: "3.10", b: "310" }]
 
     steps:
       - uses: actions/checkout@v3

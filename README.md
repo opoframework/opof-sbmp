@@ -33,8 +33,8 @@ The planner optimization problem is to find a generator $G_\theta(c)$ that maps 
 (which depend on the planner used), such that the number of planner iterations taken for the motion planner to find a path is minimized. 
 
 ##### Planning objective
-$\boldsymbol{f}(x; c)$ is given as $-iter / {max\_iter}$, where $iter$ is the number of planner iterations taken for the 
-motion planner to find a collision-free path from the start to goal robot configuration, and $max\_iter$ is the maximum allowed
+$\boldsymbol{f}(x; c)$ is given as $-iter / {max\\_{iter}}$, where $iter$ is the number of planner iterations taken for the 
+motion planner to find a collision-free path from the start to goal robot configuration, and $max\\_iter$ is the maximum allowed
 planner iterations.
 
 #### Problem instance distribution
