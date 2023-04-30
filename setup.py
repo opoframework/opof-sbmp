@@ -64,7 +64,7 @@ class build_ext(build_ext_orig):
 
 setup(
     name="opof-sbmp",
-    version="0.2.0",
+    version="0.3.0",
     description="OPOF domains for sampling-based robot motion planning",
     long_description=long_description,
     long_description_content_type="text/markdown",

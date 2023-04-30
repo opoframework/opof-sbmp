@@ -11,7 +11,7 @@
 $ pip install opof-sbmp
 ```
 
-`opof-sbmp` is officially tested and supported for Python 3.9, 3.10, 3.11 and Ubuntu 20.04, 22.04.
+`opof-sbmp` is officially tested and supported for Python 3.9, 3.10 and Ubuntu 20.04, 22.04.
 
 ## Domain: `SBMPHyp[env,planner]`
 
@@ -30,11 +30,12 @@ This makes it particularly suitable for OPOF, since we treat the planner as clos
 The robot is tasked with moving its arm(s) from a start configuration to a goal configuration by running a sampling-based motion planner. 
 The planner optimization problem is to find a generator $G_\theta(c)$ that maps a problem instance $c$ 
 (in this case, the combination of obstacle poses in the environment and the start and goal robot configurations) to a set of planner hyperparameters 
-(which depend on the planner used), such that the time taken for the motion planner to find a path is minimized. 
+(which depend on the planner used), such that the number of planner iterations taken for the motion planner to find a path is minimized. 
 
 ##### Planning objective
-$\boldsymbol{f}(x; c)$ is given as $-time$, where $time$ is the time taken for the motion planner to find a collision-free path 
-from the start to goal robot configuration. 
+$\boldsymbol{f}(x; c)$ is given as $-iter / {max\_iter}$, where $iter$ is the number of planner iterations taken for the 
+motion planner to find a collision-free path from the start to goal robot configuration, and $max\_iter$ is the maximum allowed
+planner iterations.
 
 #### Problem instance distribution
 The training set and testing set contain $1000$ and $100$ problem instances respectively. 
@@ -83,15 +84,20 @@ We grow two random search trees from the start and the goal configurations towar
 
 ##### Planner hyperparameters
 We tune the following parameters: 
-- _range_ $\in [0.01, 5.00]$ parameter, which limits how much to extend the trees at each step; and
 - a _weight_ vector $\in \mathbb{R}^{50}$ with non-negative entries summing to $1$, which controls the sampling of target points using the experience-based sampling scheme adapted from [here](https://ieeexplore.ieee.org/abstract/document/9832486).
+
+The package currently supports simultaneously optimizing other parameters such as the _range_ parameter. However, the learning of such simultaneous parameters
+have yet to be properly studied for RRTConnect. Thus, we do not include the these additional parameters by default.
 
 ### [`LBKPIECE1`](https://ompl.kavrakilab.org/classompl_1_1geometric_1_1LBKPIECE1.html#gLBKPIECE1)
 
 ##### Description
 Two random search trees are grown from the start and the goal configurations, but controls the exploration of the configuration space using grid-based projections. 
 
-##### Planner hyperparemeters
+We note that the learning of conditional hyperparameters for LBKPIECE1 has not been well studied. Thus, this planner should be exploratory for now (i.e. it should 
+not be used as a baseline to compare learning algorithms).
+
+##### Planner hyperparameters
 We tune the following parameters: 
 - _range_ $\in [0.01, 5.00]$ which determines ho wmuch to extend the trees at each step; 
 - _border_fraction_ $\in [0.001, 1]$ which determins how much to focus exploration on unexplored cells; 
