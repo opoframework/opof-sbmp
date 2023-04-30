@@ -9,7 +9,7 @@ from opof_sbmp.environments import (
 from opof_sbmp.robots import BaxterRobot, FetchRobot, UR5Robot
 
 
-@pytest.mark.parametrize("domain", ["Cage"])
+@pytest.mark.parametrize("domain", ["Cage", "Bookshelf", "Table"])
 def test_ik_and_plan(domain):
 
     # Create world.
@@ -45,6 +45,7 @@ def test_ik_and_plan(domain):
         {},
         problem.start,
         problem.goal,
-        5.0,
+        10000,
+        False
     )
     assert "success" in result
